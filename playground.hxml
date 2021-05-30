@@ -1,0 +1,11 @@
+-cp tests
+-main Playground
+-js bin/playground/index.js
+-dce full
+
+-lib hxnodejs
+-lib why-bluez
+-lib tink_core_ext
+
+-D no-deprecation-warnings
+-D analyzer-optimize

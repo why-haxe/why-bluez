@@ -1,0 +1,3 @@
+# @install: lix --silent download "gh://github.com/why-haxe/why-timezone#4a161825b731ac9f30b0434151443582308ad58f" into why-timezone/0.0.0/github/4a161825b731ac9f30b0434151443582308ad58f
+-cp ${HAXE_LIBCACHE}/why-timezone/0.0.0/github/4a161825b731ac9f30b0434151443582308ad58f/src
+-D why-timezone=0.0.0
