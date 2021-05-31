@@ -4,7 +4,7 @@ interface Adapter1 {
 	@:readonly final address:String;
 	@:readonly final addressType:String;
 	@:readonly final name:String;
-	@:readonly final alias:String;
+	final alias:String;
 	@:member('Class') @:readonly final class_:UInt;
 	final powered:Bool;
 	final discoverable:Bool;
@@ -13,7 +13,7 @@ interface Adapter1 {
 	final discoverableTimeout:UInt;
 	@:readonly final discovering:Bool;
 	@:member('UUIDs') @:readonly final uuids:Array<String>;
-	@:readonly final modalias:String;
+	@:optional @:readonly final modalias:String;
 	@:readonly final roles:Array<String>;
 	
 	function startDiscovery():Void;

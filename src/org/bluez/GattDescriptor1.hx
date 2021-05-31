@@ -1,15 +1,15 @@
 package org.bluez;
 
-import haxe.io.Bytes;
+import tink.Chunk;
 import why.dbus.types.*;
 
 interface GattDescriptor1 {
 	@:member('UUID') @:readonly final uuid:String;
 	@:readonly final characteristic:ObjectPath;
-	@:readonly final value:Bytes;
+	@:readonly final value:Chunk;
 	@:readonly final flags:Array<String>;
 	final handle:UInt16;
 	
-	function readValue(flags:Map<String, Variant>):Bytes;
-	function writeValue(value:Bytes, flags:Map<String, Variant>):Void;
+	function readValue(flags:Map<String, Variant>):Chunk;
+	function writeValue(value:Chunk, flags:Map<String, Variant>):Void;
 }
