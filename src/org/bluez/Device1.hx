@@ -23,7 +23,7 @@ interface Device1 {
 	@:optional @:readonly final serviceData:Map<String, Chunk>;
 	@:readonly final servicesResolved:Bool;
 	@:readonly final advertisingFlags:Chunk;
-	// @:readonly final advertisingData:Map<Byte, Chunk>;
+	@:readonly final advertisingData:Map<UInt8, Chunk>;
 	// @:readonly final gattServices:Array<ObjectPath>;
 	
 	function connect():Void;
