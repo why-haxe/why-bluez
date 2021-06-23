@@ -11,8 +11,11 @@ class AdapterTest {
 	
 	public function test() {
 		// js.Node.process.setuid(1000);
-		final transport = why.dbus.transport.NodeDBusNext.sessionBus({busAddress: 'tcp:host=192.168.0.119,port=7272', authMethods: ['EXTERNAL']});
-		(cast transport).bus.on('message', m -> trace(m));
+		final transport = switch Sys.systemName().toLowerCase() {
+			case 'linux': why.dbus.transport.NodeDBusNext.systemBus();
+			case _: why.dbus.transport.NodeDBusNext.sessionBus({busAddress: 'tcp:host=192.168.0.115,port=7272', authMethods: ['EXTERNAL']});
+		}
+		// (cast transport).bus.on('message', m -> trace(m));
 		// final transport = why.dbus.transport.NodeDBusNext.systemBus();
 		// transport.signals.handle(o -> trace(o));
 		final adapter = new why.dbus.Object<org.bluez.Adapter1>(transport, 'org.bluez', '/org/bluez/hci0');
@@ -24,7 +27,7 @@ class AdapterTest {
 				adapter.powered.get();
 			})
 			.next(powered -> {
-				trace(powered);
+				asserts.assert(powered);
 				
 				// final manager = new why.dbus.Object<org.freedesktop.DBus.ObjectManager>(transport, 'org.bluez', '/');
 				// new haxe.Timer(1000).run = () -> manager.getManagedObjects().handle(o -> trace(o.sure().count(v -> v.exists('org.bluez.Device1'))));
@@ -32,7 +35,7 @@ class AdapterTest {
 				adapter.discovering.get();
 			})
 			.next(discovering -> {
-				trace(discovering);
+				trace('init discovering: $discovering');
 				
 				
 				final manager = new why.dbus.Object<org.freedesktop.DBus.ObjectManager>(transport, 'org.bluez', null);
@@ -52,26 +55,22 @@ class AdapterTest {
 				
 				adapter.startDiscovery();
 			})
-			.next(v -> {
-				trace(v);
-				adapter.discovering.get();
-			})
+			.next(v -> adapter.discovering.get())
 			.next(discovering -> {
-				trace(discovering);
+				asserts.assert(discovering);
 				
 				// final manager = new why.dbus.Object<org.freedesktop.DBus.ObjectManager>(transport, 'org.bluez', '/');
 				// manager.getManagedObjects().handle(o -> trace(o.sure()));
 				
 				
 				
-				Future.delay(180000, Noise).next(_ -> adapter.stopDiscovery());
+				Future.delay(5000, Noise).next(_ -> adapter.stopDiscovery());
 			})
 			.next(v -> {
-				trace(v);
 				adapter.discovering.get();
 			})
 			.next(discovering -> {
-				trace(discovering);
+				asserts.assert(!discovering);
 				Noise;
 			})
 			.handle(asserts.handle);
