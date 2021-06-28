@@ -1,5 +1,8 @@
 package org.bluez;
 
+import why.dbus.types.Variant;
+import why.dbus.types.ObjectPath;
+
 interface Adapter1 {
 	@:readonly final address:String;
 	@:readonly final addressType:String;
@@ -18,6 +21,7 @@ interface Adapter1 {
 	
 	function startDiscovery():Void;
 	function stopDiscovery():Void;
-	
-	
+	function removeDevice(device:ObjectPath):Void;
+	function getDiscoveryFilters():Array<String>;
+	function setDiscoveryFilter(filter:Map<String, Variant>):Void;
 }
