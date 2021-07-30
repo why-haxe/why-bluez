@@ -2,6 +2,7 @@ package why.bluez;
 
 import why.bluez.Adapter;
 import why.dbus.*;
+import why.dbus.client.*;
 
 using tink.CoreApi;
 
@@ -11,13 +12,15 @@ class BlueZ {
 	public final deviceAdded:Signal<Device>;
 	public final deviceRemoved:Signal<Device>;
 	
-	final transport:Transport;
+	final cnx:Connection;
+	final destination:Destination;
 	final manager:Interface<org.freedesktop.DBus.ObjectManager>;
 	final devices:Map<String, Device> = [];
 	
-	public function new(transport) {
-		this.transport = transport;
-		this.manager = new Object<org.freedesktop.DBus.ObjectManager>(transport, DESTINATION, '/');
+	public function new(cnx) {
+		this.cnx = cnx;
+		this.destination = cnx.getDestination(DESTINATION);
+		this.manager = destination.getObject('/').getInterface(org.freedesktop.DBus.ObjectManager);
 		
 		this.deviceAdded = manager.interfacesAdded.select(tuple -> {
 			final path = tuple.v0;
@@ -42,7 +45,11 @@ class BlueZ {
 	
 	public function getAdapters() {
 		return manager.getManagedObjects()
-			.next(objects -> [for(path => interfaces in objects) if(interfaces.exists('org.bluez.Adapter1')) new Adapter(transport, DESTINATION, path)]);
+			.next(objects -> [
+				for(path => interfaces in objects)
+					if(interfaces.exists('org.bluez.Adapter1'))
+						new Adapter(destination.getObject(path))
+			]);
 	}
 	
 	public function getDevices() {
@@ -58,7 +65,7 @@ class BlueZ {
 	
 	function getDevice(path:String, ?uuid:String) {
 		return switch devices[path] {
-			case null: devices[path] = new Device(transport, DESTINATION, path, uuid);
+			case null: devices[path] = new Device(destination.getObject(path), uuid);
 			case v: v;
 		}
 	}

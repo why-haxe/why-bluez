@@ -1,6 +1,6 @@
 package why.bluez;
 
-import why.dbus.*;
+import why.dbus.client.*;
 
 using StringTools;
 using tink.CoreApi;
@@ -9,15 +9,13 @@ class Device extends Base {
 	public final uuid:String;
 	
 	public final device:Interface<org.bluez.Device1>;
-	public final introspectable:Interface<org.freedesktop.DBus.Introspectable>;
 	
 	final services:Map<String, Service> = [];
 	
-	public function new(transport, destination, path, uuid) {
-		super(transport, destination, path);
+	public function new(object, uuid) {
+		super(object);
 		this.uuid = uuid;
-		this.device = new Object<org.bluez.Device1>(transport, destination, path);
-		this.introspectable = new Object<org.freedesktop.DBus.Introspectable>(transport, destination, path);
+		this.device = object.getInterface(org.bluez.Device1);
 	}
 	
 	public function getServices() {
@@ -28,13 +26,13 @@ class Device extends Base {
 				else
 					device.servicesResolved.changed.nextTime(v -> v == true).noise();
 			})
-			.next(_ -> introspectable.introspect())
+			.next(_ -> object.introspectable.introspect())
 			.next(why.dbus.introspection.Introspection.parse)
 			.next(introspection -> Promise.inParallel([
 				for(node in introspection.children)
 					if(node.name.startsWith('service')) {
-						final path = '$path/${node.name}';
-						new Object<org.bluez.GattService1>(transport, destination, path)
+						final path = '${object.path}/${node.name}';
+						object.destination.getObject(path).getInterface(org.bluez.GattService1)
 							.uuid.get().next(uuid -> getService(path, uuid));
 					}
 			]));
@@ -42,7 +40,7 @@ class Device extends Base {
 	
 	function getService(path:String, ?uuid:String) {
 		return switch services[path] {
-			case null: services[path] = new Service(transport, destination, path, uuid);
+			case null: services[path] = new Service(object.destination.getObject(path), uuid);
 			case v: v;
 		}
 	}

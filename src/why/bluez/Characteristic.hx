@@ -1,6 +1,6 @@
 package why.bluez;
 
-import why.dbus.*;
+import why.dbus.client.*;
 
 using StringTools;
 using tink.CoreApi;
@@ -9,12 +9,10 @@ class Characteristic extends Base {
 	public final uuid:String;
 	
 	public final characteristic:Interface<org.bluez.GattCharacteristic1>;
-	public final introspectable:Interface<org.freedesktop.DBus.Introspectable>;
 	
-	public function new(transport, destination, path, uuid) {
-		super(transport, destination, path);
+	public function new(object, uuid) {
+		super(object);
 		this.uuid = uuid;
-		this.characteristic = new Object<org.bluez.GattCharacteristic1>(transport, destination, path);
-		this.introspectable = new Object<org.freedesktop.DBus.Introspectable>(transport, destination, path);
+		this.characteristic = object.getInterface(org.bluez.GattCharacteristic1);
 	}
 }
