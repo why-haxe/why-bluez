@@ -1,5 +1,5 @@
-# @install: lix --silent download "gh://github.com/why-haxe/why-dbus#ba1c5a6341803d69c4d41b41eabd66075bad7954" into why-dbus/0.0.0/github/ba1c5a6341803d69c4d41b41eabd66075bad7954
+# @install: lix --silent download "gh://github.com/why-haxe/why-dbus#f84f1971bf49748bb57eef4c06fe1b87c622ea01" into why-dbus/0.0.0/github/f84f1971bf49748bb57eef4c06fe1b87c622ea01
 -lib tink_chunk
 -lib tink_xml
--cp ${HAXE_LIBCACHE}/why-dbus/0.0.0/github/ba1c5a6341803d69c4d41b41eabd66075bad7954/src
+-cp ${HAXE_LIBCACHE}/why-dbus/0.0.0/github/f84f1971bf49748bb57eef4c06fe1b87c622ea01/src
 -D why-dbus=0.0.0

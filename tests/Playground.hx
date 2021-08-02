@@ -1,7 +1,10 @@
 package;
 
+import why.dbus.server.Property.SimpleProperty;
+import tink.core.Disposable.SimpleDisposable;
 import tink.Chunk;
 import why.dbus.types.*;
+import why.dbus.server.Property;
 import why.dbus.client.Interface;
 import why.bluez.*;
 import tink.core.ext.*;
@@ -79,26 +82,28 @@ class Playground {
 			
 			if(!o.isSuccess()) throw 0;
 			
-			cnx.exportInterface('/why/bluez/Advertisement', (new Advertisement():org.bluez.LEAdvertisement1));
-			cnx.exportInterface('/why/bluez/Application', (new Application():org.freedesktop.DBus.ObjectManager));
-			cnx.exportInterface('/why/bluez/Service', (new Service():org.bluez.GattService1));
-			cnx.exportInterface('/why/bluez/Characteristic', (new Characteristic():org.bluez.GattCharacteristic1));
+			cnx.exportObject('/why/bluez/Advertisement', (new Advertisement():org.bluez.LEAdvertisement1), (new EmptyObjectManager():org.freedesktop.DBus.ObjectManager));
+			cnx.exportObject('/why/bluez/Application', (new Application():org.freedesktop.DBus.ObjectManager));
+			cnx.exportObject('/why/bluez/Service', (new Service():org.bluez.GattService1));
+			cnx.exportObject('/why/bluez/Characteristic', (new Characteristic():org.bluez.GattCharacteristic1));
 			
 			bluez.getAdapters() 
 				.handle(o -> {
 					for(adapter in o.sure()){
 						adapter.adapter.address.get().handle(o -> trace(adapter.object.path, 'address', o.sure()));
+						adapter.adapter.powered.get().handle(o -> trace(adapter.object.path, 'powered', o.sure()));
 						// adapter.adapter.roles.get().handle(o -> trace(adapter.path, o.sure()));
 						// adapter.adapter.startDiscovery().handle(o -> trace(o));
-						
-						
 						// adapter.object.introspectable.introspect().handle(o -> trace(o.sure()));
 						
 						adapter.gattManager.registerApplication('/why/bluez/Application', [])
 							.handle(o -> switch o {
-								case Success(_): trace('registerApplication');
-								case Failure(e): trace(e.message); trace(e.data);
+								case Success(_):
+									trace('registerApplication');
+								case Failure(e):
+									trace(e.message); trace(e.data);
 							});
+							
 						adapter.leAdvertisingManager.registerAdvertisement('/why/bluez/Advertisement', [])
 							.handle(o -> switch o {
 								case Success(_): trace('registerAdvertisement');
@@ -164,77 +169,41 @@ class Playground {
 	// }
 }
 
-class Advertisement implements why.dbus.server.Interface<org.bluez.LEAdvertisement1> {
+class EmptyObjectManager implements why.dbus.server.Interface<org.freedesktop.DBus.ObjectManager> {
+	
+	public final interfacesAdded = Signal.trigger();
+	public final interfacesRemoved = Signal.trigger();
+	
 	public function new() {}
 
-	public function get_type():Promise<String> {
-		return 'peripheral';
+	public function getManagedObjects():tink.core.Promise<Map<ObjectPath, Map<String, Map<String, Variant>>>> {
+		trace('EmptyObjectManager');
+		return Promise.resolve(new Map<ObjectPath, Map<String, Map<String, Variant>>>());
 	}
+}
 
-	public function get_serviceUuids():Promise<Array<String>> {
-		return [];
-	}
+class Advertisement implements why.dbus.server.Interface<org.bluez.LEAdvertisement1> {
 
-	public function get_manufacturerData():Promise<Map<UInt16, Variant>> {
-		return Promise.resolve(new Map());
-	}
-
-	public function get_solicitUuids():Promise<Array<String>> {
-		return [];
-	}
-
-	public function get_serviceData():Promise<Map<String, Variant>> {
-		return Promise.resolve(new Map());
-	}
-
-	public function get_data():Promise<Map<UInt8, Variant>> {
-		return Promise.resolve(new Map());
-	}
-
-	public function get_discoverable():Promise<Bool> {
-		return true;
-	}
-
-	public function get_discoverableTimeout():Promise<UInt16> {
-		return 0;
-	}
-
-	public function get_includes():Promise<Array<String>> {
-		return [];
-	}
-
-	public function get_localName():Promise<String> {
-		return 'rpi';
-	}
-
-	public function get_appearance():Promise<UInt16> {
-		return 0;
-	}
-
-	public function get_duration():Promise<UInt16> {
-		return 300;
-	}
-
-	public function get_timeout():Promise<UInt16> {
-		return 300;
-	}
-
-	public function get_secondaryChannel():Promise<String> {
-		return '1M';
-	}
-
-	public function get_minInterval():Promise<UInt> {
-		return 2000;
-	}
-
-	public function get_maxInterval():Promise<UInt> {
-		return 4000;
-	}
-
-	public function get_txPower():Promise<Int16> {
-		return 0;
-	}
-
+	public final type = new SimpleProperty('peripheral');
+	public final serviceUuids = new SimpleProperty([]);
+	public final manufacturerData = new SimpleProperty(new Map());
+	public final solicitUuids = new SimpleProperty([]);
+	public final serviceData = new SimpleProperty(new Map());
+	public final data = new SimpleProperty(new Map());
+	public final discoverable = new SimpleProperty(true);
+	public final discoverableTimeout = new SimpleProperty(0);
+	public final includes = new SimpleProperty([]);
+	public final localName = new SimpleProperty('rpi');
+	public final appearance = new SimpleProperty(0);
+	public final duration = new SimpleProperty(300);
+	public final timeout = new SimpleProperty(300);
+	public final secondaryChannel = new SimpleProperty('1M');
+	public final minInterval = new SimpleProperty(2000);
+	public final maxInterval = new SimpleProperty(4000);
+	public final txPower = new SimpleProperty(0);
+	
+	public function new() {}
+	
 	public function release():Promise<Noise> {
 		trace('release');
 		return Promise.NOISE;
@@ -274,87 +243,27 @@ class Application implements why.dbus.server.Interface<org.freedesktop.DBus.Obje
 }
 
 class Service implements why.dbus.server.Interface<org.bluez.GattService1> {
+	public final uuid = new SimpleProperty('3336f8d2-9f66-4f58-a53d-fc7440e7c14e');
+	public final primary = new SimpleProperty(true);
+	public final device = new SimpleProperty('/why/bluez/Application');
+	public final includes = new SimpleProperty([]);
+	public final handle = new SimpleProperty(0);
+	
 	public function new() {}
-
-	public function get_uuid():tink.core.Promise<String> {
-		trace('get_uuid');
-		return '3336f8d2-9f66-4f58-a53d-fc7440e7c14e';
-	}
-
-	public function get_primary():tink.core.Promise<Bool> {
-		trace('get_primary');
-		return true;
-	}
-
-	public function get_device():tink.core.Promise<ObjectPath> {
-		trace('get_device');
-		return '/why/bluez/Application';
-	}
-
-	public function get_inlcudes():tink.core.Promise<Array<ObjectPath>> {
-		trace('get_inlcudes');
-		return [];
-	}
-
-	public function get_handle():tink.core.Promise<UInt16> {
-		trace('get_handle');
-		return 0;
-	}
-
-	public function set_handle(v:UInt16):tink.core.Promise<tink.core.Noise> {
-		trace('set_handle');
-		return Promise.NOISE;
-	}
 }
 
 class Characteristic implements why.dbus.server.Interface<org.bluez.GattCharacteristic1> {
+
+	public final uuid = new SimpleProperty('ccc6f8d2-9f66-4f58-a53d-fc7440e7c14c');
+	public final service = new SimpleProperty('/why/bluez/Service');
+	public final value = new SimpleProperty(('current_value':Chunk));
+	public final writeAcquired = new SimpleProperty(false);
+	public final notifyAcquired = new SimpleProperty(false);
+	public final notifying = new SimpleProperty(false);
+	public final flags = new SimpleProperty([]);
+	public final handle = new SimpleProperty(0);
 	
 	public function new() {}
-
-	public function get_uuid():Promise<String> {
-		trace('get_uuid');
-		return 'ccc6f8d2-9f66-4f58-a53d-fc7440e7c14c';
-	}
-
-	public function get_service():Promise<ObjectPath> {
-		trace('get_service');
-		return '/why/bluez/Service';
-	}
-
-	public function get_value():Promise<Chunk> {
-		trace('get_value');
-		return ('current_value':Chunk);
-	}
-
-	public function get_writeAcquired():Promise<Bool> {
-		trace('get_writeAcquired');
-		return false;
-	}
-
-	public function get_notifyAcquired():Promise<Bool> {
-		trace('get_notifyAcquired');
-		return false;
-	}
-
-	public function get_notifying():Promise<Bool> {
-		trace('get_notifying');
-		return false;
-	}
-
-	public function get_flags():Promise<Array<String>> {
-		trace('get_flags');
-		return [];
-	}
-
-	public function get_handle():Promise<UInt16> {
-		trace('get_handle');
-		return 0;
-	}
-
-	public function set_handle(v:UInt16):Promise<tink.core.Noise> {
-		trace('set_handle');
-		return Promise.NOISE;
-	}
 
 	public function readValue(options:Map<String, Variant>):Promise<Chunk> {
 		trace('readValue');

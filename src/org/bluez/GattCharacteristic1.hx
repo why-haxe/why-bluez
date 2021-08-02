@@ -4,7 +4,7 @@ import tink.Chunk;
 import why.dbus.types.*;
 
 interface GattCharacteristic1 {
-	@:member('UUID') @:readonly final uuid:String;
+	@:name('UUID') @:readonly final uuid:String;
 	@:readonly final service:ObjectPath;
 	@:readonly final value:Chunk;
 	@:readonly final writeAcquired:Bool;

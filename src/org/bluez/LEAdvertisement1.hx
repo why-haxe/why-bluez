@@ -4,9 +4,9 @@ import why.dbus.types.*;
 
 interface LEAdvertisement1 {
 	@:readonly final type:String;
-	@:readonly @:member('ServiceUUIDs') final serviceUuids:Array<String>;
+	@:readonly @:name('ServiceUUIDs') final serviceUuids:Array<String>;
 	@:readonly final manufacturerData:Map<UInt16, Variant>;
-	@:readonly @:member('SolicitUUIDs') final solicitUuids:Array<String>;
+	@:readonly @:name('SolicitUUIDs') final solicitUuids:Array<String>;
 	@:readonly final serviceData:Map<String, Variant>;
 	@:readonly final data:Map<UInt8, Variant>;
 	@:readonly final discoverable:Bool;

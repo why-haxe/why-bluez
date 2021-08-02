@@ -11,8 +11,8 @@ class BlueZ {
 	
 	public final deviceAdded:Signal<Device>;
 	public final deviceRemoved:Signal<Device>;
+	public final cnx:Connection;
 	
-	final cnx:Connection;
 	final destination:Destination;
 	final manager:Interface<org.freedesktop.DBus.ObjectManager>;
 	final devices:Map<String, Device> = [];
