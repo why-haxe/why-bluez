@@ -34,9 +34,13 @@ class BlueZ {
 			final path = tuple.v0;
 			final interfaces = tuple.v1;
 			if(interfaces.contains('org.bluez.Device1')) {
-				final device = getDevice(path);
-				devices.remove(path);
-				Some(device);
+				switch devices[path] {
+					case null:
+						None;
+					case device:
+						devices.remove(path);
+						Some(device);
+				}
 			} else {
 				None;
 			}
