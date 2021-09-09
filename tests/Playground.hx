@@ -171,10 +171,13 @@ class Playground {
 
 class EmptyObjectManager implements why.dbus.server.Interface<org.freedesktop.DBus.ObjectManager> {
 	
-	public final interfacesAdded = Signal.trigger();
-	public final interfacesRemoved = Signal.trigger();
+	public final interfacesAdded:why.dbus.server.Signal<ObjectPath, Map<String, Map<String, Variant>>>;
+	public final interfacesRemoved:why.dbus.server.Signal<ObjectPath, Array<String>>;
 	
-	public function new() {}
+	public function new() {
+		interfacesAdded = null;
+		interfacesRemoved = null;
+	}
 
 	public function getManagedObjects():tink.core.Promise<Map<ObjectPath, Map<String, Map<String, Variant>>>> {
 		trace('EmptyObjectManager');
@@ -216,8 +219,8 @@ class Application implements why.dbus.server.Interface<org.freedesktop.DBus.Obje
 	public final interfacesRemoved:why.dbus.server.Signal<ObjectPath, Array<String>>;
 	
 	public function new() {
-		interfacesAdded = tink.core.Signal.trigger();
-		interfacesRemoved = tink.core.Signal.trigger();
+		interfacesAdded = null;
+		interfacesRemoved = null;
 	}
 	
 	public function getManagedObjects():Promise<Map<ObjectPath, Map<String, Map<String, Variant>>>> {

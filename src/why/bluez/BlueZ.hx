@@ -22,28 +22,25 @@ class BlueZ {
 		this.destination = cnx.getDestination(DESTINATION);
 		this.manager = destination.getObject('/').getInterface(org.freedesktop.DBus.ObjectManager);
 		
-		this.deviceAdded = manager.interfacesAdded.select(tuple -> {
-			final path = tuple.v0;
-			final interfaces = tuple.v1;
-			switch interfaces['org.bluez.Device1'] {
-				case null: None;
-				case iface: Some(getDevice(path, iface['Address'].value));
-			}
-		});
-		this.deviceRemoved = manager.interfacesRemoved.select(tuple -> {
-			final path = tuple.v0;
-			final interfaces = tuple.v1;
-			if(interfaces.contains('org.bluez.Device1')) {
-				switch devices[path] {
-					case null:
-						None;
-					case device:
-						devices.remove(path);
-						Some(device);
+		this.deviceAdded = new Signal(cb -> {
+			manager.interfacesAdded.handle((path, interfaces) -> {
+				switch interfaces['org.bluez.Device1'] {
+					case null: // skip
+					case iface: cb(getDevice(path, iface['Address'].value));
 				}
-			} else {
-				None;
-			}
+			});
+		});
+		this.deviceRemoved = new Signal(cb -> {
+			manager.interfacesRemoved.handle((path, interfaces) -> {
+				if(interfaces.contains('org.bluez.Device1')) {
+					switch devices[path] {
+						case null: // skip
+						case device:
+							devices.remove(path);
+							cb(device);
+					}
+				}
+			});
 		});
 	}
 	

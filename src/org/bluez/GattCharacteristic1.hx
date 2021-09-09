@@ -15,6 +15,7 @@ interface GattCharacteristic1 {
 	
 	function readValue(options:Map<String, Variant>):Chunk;
 	function writeValue(value:Chunk, options:Map<String, Variant>):Void;
+	// function acquireNotify(options:Map<String, Variant>):Void;
 	function startNotify():Void;
 	function stopNotify():Void;
 }
